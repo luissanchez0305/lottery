@@ -1,5 +1,5 @@
 <div class="px-4 py-5 my-5 text-center">
-  <h1 class="display-5 fw-bold">Token Ballot Dapp</h1>
+  <h1 class="display-5 fw-bold">Lottery Dapp</h1>
   <div class="col-lg-6 mx-auto">
       <div *ngIf="blockNumber && blockNumber>0" class = "mt-4" >
     <p class="lead mb-4 my-4">
@@ -11,59 +11,105 @@
           Connect Wallet
         </button>
        </div>
+       <div *ngIf="!lotteryState" >
+        <div *ngIf="userPrize" class="card mt-4 mx-auto" >
+          <div class="card-body">
+            <p class="card-text"> UserPrize: {{userPrize}} LTN</p>
+            <button
+              type="button" 
+              class="btn btn-success btn-lg px-4 gap-3 my-4"
+              (click) = "claimPrize()"
+            >
+              Claim Prize
+            </button>
+          </div>
+        </div>
+        <div *ngIf="userWallet" class="card mt-4 mx-auto" >
+          <div class="card-body">
+            <h5 class="card-title">Lottery Closed</h5>
+            <button *ngIf ="minutesToClose" 
+              type="button" 
+              class="btn btn-danger btn-lg px-4 gap-3 my-4"
+              (click) = "openBets(minutesToClose.value)"
+            >
+              Open Lottery
+            </button>
+            <p>Duration of the bets in minutes: </p>
+            <input #minutesToClose type="number" min="0" max = "100" class="input">
+          </div>
+        </div>
+      </div>
+      <div *ngIf="lotteryState">
+        <div *ngIf="userWallet" class="card mt-4 mx-auto" >
+          <div class="card-body">
+            <h5 class="card-title">Lottery Opened</h5>
+            <p class="card-text"> Bet Closing Time: {{closingTimeDate}}</p>
+            <button
+              type="button" 
+              class="btn btn-danger btn-lg px-4 gap-3 my-4"
+              (click) = "closeBets()"
+            >
+              Close Lottery
+            </button>
+          </div>
+        </div>
+        <div *ngIf="userWallet" class="card mt-4 mx-auto" >
+          <div class="card-body">
+            <p class="card-text"> Token Balance: {{userTokenBalance}} LTN</p>
+            <p class="card-text"> Prize Pool: {{prizePool}} LTN</p>
+            <p class="card-text"> Owner Pool: {{ownerPool}} LTN</p>
+            <button *ngIf ="betAmount" 
+              type="button" 
+              class="btn btn-danger btn-lg px-4 gap-3 my-4"
+              (click) = "bet(betAmount.value)"
+            >
+              Bet
+            </button>
+            <p>Amount of bets to make: </p>
+            <input #betAmount type="number" min="0" max = "100" class="input">
+          </div>
+        </div>
+      </div>
       <div *ngIf="userWallet" class="card mt-4 mx-auto" >
         <div class="card-body">
           <h5 class="card-title">User Wallet</h5>
           <h6 class="card-subtitle mb-2 text-muted">{{userAddress}}</h6>
           <p class="card-text"> Balance: {{userEthBalance}} Eth</p>
-          <p class="card-text"> Token Balance: {{userTokenBalance}} MKT</p>
-          <button *ngIf ="mintAmount" 
+          <p class="card-text"> Token Balance: {{userTokenBalance}} LTN</p>
+          <p class="card-text"> Purchase ratio: {{purchaseRatio}}</p>
+          <button *ngIf ="buyAmount" 
             type="button" 
-            class="btn btn-danger btn-lg px-4 gap-3 my-4" 
-            >
-            Request Voting Tokens
+            class="btn btn-primary btn-lg px-4 gap-3 my-4"
+            (click) = "buyTokens(buyAmount.value)"
+          >
+            Buy Tokens
           </button>
           <p>Amount: </p>
-          <input #mintAmount type="number" min="0" max = "100" class="input">
+          <input #buyAmount type="number" min="0" max = "100" class="input">
         </div>
       </div>
       <div *ngIf="userWallet" class="card mt-4 mx-auto" >
         <div class="card-body">
-          <h5 class="card-title">Delegate</h5>
-          <p class="card-text"> Token Balance: {{userTokenBalance}} MKT</p>
-          <p>Address to delegate: </p>
-          <input #address type="text" class="input col-lg-6">
-          <p></p>
-          <button *ngIf ="address" 
-          type="button" 
-          class="btn btn-success btn-lg px-4 gap-3 my-4" 
+          <h5 class="card-title">User Wallet</h5>
+          <p class="card-text"> Token Balance: {{userTokenBalance}} LTN</p>
+          <p class="card-text"> Purchase ratio: {{purchaseRatio}}</p>
+          <button *ngIf ="burnAmount" 
+            type="button" 
+            class="btn btn-danger btn-lg px-4 gap-3 my-4"
+            (click) = "burnTokens(burnAmount.value)"
           >
-          Delegate
-        </button>
+            Burn Tokens
+          </button>
+          <p>Amount: </p>
+          <input #burnAmount type="number" min="0" max = "100" class="input">
         </div>
       </div>
-      <div *ngIf="userWallet" class="card mt-4 mx-auto" >
-        <div class="card-body">
-          <h5 class="card-title">Vote</h5>
-          <p class="card-text"> Voting power: {{userVotingPower}} votes</p>
-          <p>Proposal #: </p>
-          <input #proposal type="number" min="0" max = "100" class="input">
-          <p>Votes: </p>
-          <input #votes type="number" min="0" max = "100" class="input">
-          <p></p>
-          <button *ngIf ="votes" 
-          type="button" 
-          class="btn btn-primary btn-lg px-4 gap-3 my-4"
-          >
-          Vote
-        </button>
-        </div>
-      </div>
+
       <div *ngIf="tokenContractAddress" class="card mt-4 mx-auto" >
         <div class="card-body">
           <h5 class="card-title">TokenContract</h5>
           <h6 class="card-subtitle mb-2 text-muted">{{tokenContractAddress}}</h6>
-          <p class="card-text"> Total token Supply: {{tokenSupply}} MKT Tokens</p>
+          <p class="card-text"> Total token Supply: {{tokenSupply}} LTN Tokens</p>
         </div>
       </div>
     </div>

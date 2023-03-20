@@ -6,11 +6,11 @@ dotenv.config();
 
 
 async function main() {
-  const tokenName = "LoterryToken";
+  const tokenName = "LotteryToken";
   const tokenSymbol = "LTN"
-  const purchaseRatio = 1;
-  const betPrice = 10;
-  const betFee = 1;
+  const purchaseRatio = 100000;
+  const BET_PRICE = 1;
+  const BET_FEE = 0.2;
 
   const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
   
@@ -31,8 +31,8 @@ async function main() {
     tokenName,
     tokenSymbol,
     purchaseRatio,
-    betPrice,
-    betFee
+    ethers.utils.parseEther(BET_PRICE.toFixed(18)),
+    ethers.utils.parseEther(BET_FEE.toFixed(18))
   );
   const deployTxReceipt = await lotteryContract.deployTransaction.wait();
   console.log(`The contract was deployed at the address ${lotteryContract.address} at block ${deployTxReceipt.blockNumber}`);
